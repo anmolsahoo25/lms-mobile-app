@@ -1,0 +1,40 @@
+name: yehchina_app
+description: Skill Live by Yeh China
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: ">=2.7.0 <3.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  graphql_flutter: ^3.0.1
+  provider: ^4.1.3
+  font_awesome_flutter: ^8.8.1
+  firebase_core: ^0.4.5
+  firebase_auth: ^0.16.1
+  firebase_storage: ^3.1.6
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    - assets/img/
+
+  fonts:
+    - family: NotoSans
+      fonts:
+        - asset: assets/fonts/NotoSans-400.ttf
+          weight: 400
+        - asset: assets/fonts/NotoSans-400-Italic.ttf
+          style: italic
+        - asset: assets/fonts/NotoSans-700.ttf
+          weight: 700
+        - asset: assets/fonts/NotoSans-700-Italic.ttf
+          weight: 700
+          style: italic

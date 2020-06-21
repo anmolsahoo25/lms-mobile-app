@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "502000680296",
+    "firebase_url": "https://yehchina-mobile-app.firebaseio.com",
+    "project_id": "yehchina-mobile-app",
+    "storage_bucket": "yehchina-mobile-app.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:502000680296:android:c4f3dca8132db63ac56add",
+        "android_client_info": {
+          "package_name": "com.yehchina.skill_live"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "502000680296-ptbu0sb11ifvbe777m72tkqmm8i7e1in.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAHReinzJk6VFgAm3DCYHdgWOSZrByieSU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "502000680296-ptbu0sb11ifvbe777m72tkqmm8i7e1in.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
