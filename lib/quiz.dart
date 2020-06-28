@@ -360,7 +360,7 @@ class QuizEndView extends StatelessWidget {
                       builder: (runMutation, result) =>
                         RaisedButton(child: Text('Submit'), onPressed: () {
                           setState(() => _submitted = true);
-                          runMutation({'id' : int.parse("1"), 'score': model.getScore()});
+                          runMutation({'id' : int.parse(model.id), 'score': model.getScore()});
                         })
                     )
                   )

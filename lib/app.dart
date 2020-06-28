@@ -19,13 +19,6 @@ class AppState extends State<App> {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       var user = await FirebaseAuth.instance.currentUser();
       
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(
-          builder: (context) => OnboardingPage()
-        )
-      );
-      
-      /*
       if (user == null) {
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(builder: (context) => LoginPage())
@@ -35,7 +28,6 @@ class AppState extends State<App> {
           MaterialPageRoute(builder: (context) => AppHome())
         );
       }
-      */
     });
   }
 
@@ -75,12 +67,13 @@ class AppHomeState extends State<AppHome> {
   @override
   Widget build(BuildContext context)  {
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       body: PageView(
         physics: NeverScrollableScrollPhysics(),
         controller: _pageController,
         onPageChanged: (value) => setState(() => _currIndex = value),
         children: <Widget> [
-          HomePage(),
+          HomePage(controller: _pageController),
           DashboardPage(),
           ExplorePage(),
           AboutPage()

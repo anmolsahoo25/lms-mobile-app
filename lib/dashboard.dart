@@ -37,6 +37,7 @@ class DashboardPageState extends State<DashboardPage> {
                       id
                       fullname
                       summary
+                      language
                     }
                   }
 	              }
@@ -51,6 +52,7 @@ class DashboardPageState extends State<DashboardPage> {
             }
 
             if(result.hasException) {
+              print(result.exception);
               return SliverToBoxAdapter(child: Center(child: Text('Error...')));
             }
             final courses = result.data['mdlUserEnrolments'];
@@ -72,7 +74,7 @@ class DashboardPageState extends State<DashboardPage> {
                           Card(child: ListTile(
                             leading: FlutterLogo(size: 32.0),
                             title: Text(courses[index]['mdlEnrolByEnrolid']['mdlCourseByCourseid']['fullname']),
-                            subtitle: Text(courses[index]['mdlEnrolByEnrolid']['mdlCourseByCourseid']['summary'])
+                            subtitle: Text(courses[index]['mdlEnrolByEnrolid']['mdlCourseByCourseid']['summary'].split('\n')[0])
                             )
                           )
                         )

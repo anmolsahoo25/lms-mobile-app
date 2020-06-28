@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'dart:typed_data';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 class ImageWidget extends StatefulWidget {
   ImageWidget({Key key, this.imgUrl}) : super(key : key);
@@ -10,7 +11,7 @@ class ImageWidget extends StatefulWidget {
   createState() => ImageWidgetState();
 }
 
-class ImageWidgetState extends State<ImageWidget> {
+class ImageWidgetState extends State<ImageWidget> with AutomaticKeepAliveClientMixin {
   
   bool _loading = true;
   Uint8List _img;
@@ -35,10 +36,12 @@ class ImageWidgetState extends State<ImageWidget> {
   }
 
   build(context) {
-    return _loading ? Text('loading') :
+    super.build(context);
+    return _loading ? Center(child: SpinKitChasingDots(color: Colors.blue,)) :
     Image.memory(
       _img,
-      height: 200
     );
   }
+  
+  bool get wantKeepAlive => true;
 }

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
+import 'package:flutter_markdown/flutter_markdown.dart';
 
 import 'quiz.dart';
+import 'image.dart';
 
 class ActivityView extends StatelessWidget {
   ActivityView({Key key, this.activity}) : super(key : key);
@@ -9,14 +11,17 @@ class ActivityView extends StatelessWidget {
   final Map<String, dynamic> activity;
   
   Widget build(context) {
-    print(activity);
 
     Widget body;
 
     switch(activity['type']) {
+      case(13):
+        // lesson
+        body = LessonView(activity: activity);
+        break;
       case(15):
         // page
-        body = VideoContentView(activity: activity);
+        body = SinglePageView(activity: activity);
         break;
       case(16):
         // quiz
@@ -33,8 +38,98 @@ class ActivityView extends StatelessWidget {
   }
 }
 
-class VideoContentView extends StatelessWidget {
-  VideoContentView({Key key, this.activity}) : super(key : key);
+class LessonView extends StatefulWidget {
+  LessonView({Key key, this.activity}) : super(key : key);
+
+  final activity;
+
+  createState() => LessonViewState();
+}
+
+class LessonViewState extends State<LessonView> {
+
+  PageController controller = PageController();
+
+  build(context) {
+    return Scaffold(
+      body: SafeArea(
+        child: Query(
+          options: QueryOptions(
+            documentNode: gql(r'''
+              query getLesson($id: BigInt!) {
+                mdlLesson(id: $id) {
+                  mdlLessonPagesByLessonid {
+                    id
+                    contents
+                  }
+                }
+              }
+            '''),
+            pollInterval: 10000,
+            variables: {'id' : widget.activity['id']}
+          ),
+          builder: (result, {refetch, fetchMore}) {
+            var pages = result.data['mdlLesson']['mdlLessonPagesByLessonid'];
+            return PageView.builder(
+              controller: controller,
+              itemBuilder: (context, index) {
+                if(index > pages.length - 1) {
+                  return null;
+                }
+
+                List<Widget> navRow;
+
+                if(index == pages.length - 1) {
+                  navRow = [
+                    RaisedButton(
+                      child: Text('Mark Completed')
+                    )
+                  ];
+                } else {
+                  navRow = [
+                    Icon(Icons.arrow_left),
+                    Text('Swipe to view more pages', style: TextStyle(color: Colors.grey)),
+                    Icon(Icons.arrow_right)
+                  ];
+                }
+
+                return Column(
+                  children: <Widget>[
+                    Expanded(child: Markdown(
+                      data: pages[index]['contents'],
+                      imageBuilder: (uri,title,alt) {
+                        return ImageWidget(imgUrl: 'placeholder.png');
+                      },
+                    )),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: navRow 
+                    )
+                  ]
+                );
+              },
+            );
+          }
+        )
+      )
+    );
+  }
+}
+
+class LessonPageView extends StatelessWidget {
+  LessonPageView({Key key, this.page}) : super(key : key);
+
+  final page;
+
+  build(context) {
+    return Markdown(
+      data: page['contents'],
+    );
+  }
+}
+
+class SinglePageView extends StatelessWidget {
+  SinglePageView({Key key, this.activity}) : super(key : key);
 
   final Map<String, dynamic> activity;
   
@@ -62,26 +157,12 @@ class VideoContentView extends StatelessWidget {
             }
 
             if (result.hasException) {
-              print(result.exception);
               return Center(child: Text('error'));
             }
 
-            final data = result.data;
-            final page = data['mdlPage'];
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: <Widget>[
-                Flexible(flex: 4, child: Container(color: Colors.grey, child: Center(child: Text('video content')))),
-                Flexible(flex: 4, child: Container(color: Colors.white, child: Center(child: Text(page['content'])))),
-                Flexible(flex: 1, child: Container(color: Colors.white, child:
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: <Widget>[
-                      RaisedButton(onPressed: () => print('lol'), child: Text('Mark completed'))
-                    ]
-                  )
-                ))
-              ],
+            final page = result.data['mdlPage'];
+            return Markdown(
+              data: page['content']
             );
           }
         )
