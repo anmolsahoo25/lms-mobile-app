@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 class ExplorePage extends StatefulWidget {
   @override
@@ -70,15 +71,25 @@ class ExplorePageState extends State<ExplorePage> {
           crossAxisCount: 1,
           scrollDirection: Axis.horizontal,
           children: searchResults.map((e) {
-            return Center(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: <Widget>[
-                  Text(e['fullname']),
-                  Text(e['summary'])
-                ],
-              )
-            );
+            return InkWell(
+                  onTap: null,
+                  child: Padding(
+                  padding: EdgeInsets.all(8),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.teal[50],
+                      borderRadius: BorderRadius.all(Radius.circular(16))
+                    ),
+                    child: Column(
+                    children: <Widget>[
+                      Expanded(child: Image(image: AssetImage('assets/img/course-placeholder-cn.png'))),
+                      Padding(
+                        padding: EdgeInsets.all(8),
+                        child: Text(e['fullname'])
+                      )
+                    ]
+                  )
+                )));
           }).toList().cast<Widget>()
         )),
         Flexible(flex: 1, child: Padding(padding: EdgeInsets.all(16), child: Text('All courses'))),
@@ -97,7 +108,9 @@ class ExplorePageState extends State<ExplorePage> {
             variables: {}
           ),
           builder: (result, {refetch, fetchMore}) {
-            return Flexible(flex: 4, child: GridView.builder(
+            return result.loading ? 
+              Center(child: SpinKitChasingDots(color: Colors.blue)) : 
+              Flexible(flex: 4, child: GridView.builder(
               itemCount: result.data['mdlCourses'].length,
               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 2,
@@ -109,13 +122,25 @@ class ExplorePageState extends State<ExplorePage> {
                   return null;
                 }
 
-                return Center(child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: <Widget>[
-                    Text(courses[index]['fullname']),
-                    Text(courses[index]['summary'])
-                  ]
-                ));
+                return InkWell(
+                  onTap: null,
+                  child: Padding(
+                  padding: EdgeInsets.all(8),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.teal[50],
+                      borderRadius: BorderRadius.all(Radius.circular(16))
+                    ),
+                    child: Column(
+                    children: <Widget>[
+                      Expanded(child: Image(image: AssetImage('assets/img/course-placeholder-cn.png'))),
+                      Padding(
+                        padding: EdgeInsets.all(8),
+                        child: Text(courses[index]['fullname'])
+                      )
+                    ]
+                  )
+                )));
               },
             ));
           }

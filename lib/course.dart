@@ -3,6 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'activity.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'dart:convert';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class CourseEnrollView extends StatefulWidget {
   CourseEnrollView({Key key, this.course, this.controller}) : super(key: key);
@@ -51,7 +52,6 @@ class CourseEnrollViewState extends State<CourseEnrollView> {
           
           bool enrolled;
           bool self;
-          print(result.data);
           if(result.data['mdlCourse']['mdlEnrolsByCourseid'].length == 0) {
             self = false;
             enrolled = false;
@@ -84,7 +84,6 @@ class CourseEnrollViewState extends State<CourseEnrollView> {
                   }
                 '''),
                 onCompleted: (result) {
-                  print(result);
                   /*
                   if(result['enrollCourseAsStudent']['boolean']) {
                     Navigator.of(context).pushReplacement(MaterialPageRoute(
@@ -293,43 +292,78 @@ class CourseViewState extends State<CourseView> {
               int id2 = seqIndSorted.indexWhere((e) => e == seq2);
               return id1.compareTo(id2);
             });
+
             return SliverList(
               delegate: SliverChildBuilderDelegate(
-                (BuildContext context, int index) {
-              if (index > sequence.length - 1) {
-                return null;
-              }
-              
-              final section = sequence[index];
-              final List<String> sectionActivities = sequence[index]['sequence'].split(',');
-              return Padding(
-                padding: EdgeInsets.all(8),
-                child: Card(
-                elevation: 2,
-                child: Center(
-                  child: Column(
-                    children: <Widget>[
-                      Align(
-                        alignment: Alignment.centerLeft,
-                        child: Padding(
-                          padding: EdgeInsets.all(16),
-                          child: Text(section['name'] ?? 'Topic ' + index.toString()),
-                        )
-                      ),
-                      Column(
-                        children: activities.where((e) => sectionActivities.contains(e['sequence'])).map((e) => ActivityCard(activity: e)).toList().cast<Widget>()
-                      )
-                    ]
-                  )
-                )
-              ));
-              
+                (builder, index) {
+                  if (index > sequence.length -1) {
+                    return null;
+                  } else {
+                    return TopicCard(section: sequence[index], index: index, activities: activities);
+                  }
+                }
+              )
+            );
             }
-          )
-        );}
         )
       ]
     )));
+  }
+}
+
+class TopicCard extends StatefulWidget {
+  TopicCard({Key key, this.section, this.index, this.activities}) : super(key : key);
+
+  final Map<String, dynamic> section;
+  final int index;
+  final List<dynamic> activities;
+
+  createState() => TopicCardState();
+}
+
+class TopicCardState extends State<TopicCard> {
+  
+  bool collapsed = false;
+  double cardHeight = null;
+
+  initState() {
+    super.initState();
+  }
+
+  build(context) {
+    final section = widget.section;
+    final index = widget.index;
+    final activities = widget.activities;
+    final List<String> sectionActivities = section['sequence'].split(',');
+    
+    return Padding(
+      padding: EdgeInsets.all(8),
+      child: Card(
+        elevation: 2,
+        child: Center(
+          child: Column(
+            children: <Widget>[
+              Padding(padding: EdgeInsets.only(left: 16, right: 16, top: 16, bottom: 16), child: 
+                InkWell(
+                  onTap: () {
+                  },
+                  child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  Text(section['name'] ?? 'Topic ' + index.toString(), style: TextStyle(fontSize: 18)),
+                  collapsed ? FaIcon(FontAwesomeIcons.caretUp) : FaIcon(FontAwesomeIcons.caretDown)
+                ]
+              ))),
+              AnimatedContainer(
+                duration: Duration(milliseconds: 400),
+                child: Column(
+                children: activities.where((e) => sectionActivities.contains(e['sequence'])).map((e) => ActivityCard(activity: e)).toList().cast<Widget>()
+              ))
+                ]
+              )
+            )
+      )
+    );
   }
 }
 
@@ -337,7 +371,23 @@ class ActivityCard extends StatelessWidget {
   ActivityCard({Key key, this.activity}) : super(key : key);
 
   final activity;
+
+  FaIcon getIcon(int activity) {
+    switch(activity) {
+      case 13:
+        return FaIcon(FontAwesomeIcons.book, color: Colors.orange);
+      case 15:
+        return FaIcon(FontAwesomeIcons.video, color: Colors.blue[300]);
+        break;
+      case 16:
+        return FaIcon(FontAwesomeIcons.pencilAlt, color: Colors.green);
+      default:
+        return FaIcon(FontAwesomeIcons.box);
+    }
+  }
+
   build(context) {
+    getIcon(activity['type']);
     return Column(
       children: <Widget>[
         Divider(), 
@@ -350,12 +400,12 @@ class ActivityCard extends StatelessWidget {
             )
           ),
           child: Padding(
-            padding: EdgeInsets.all(16), 
+            padding: EdgeInsets.all(4), 
             child: ListTile(
               title: Text(activity['name']),
               subtitle: Text(activity['intro']),
-              leading: Icon(Icons.access_alarm),
-              trailing: activity['mdlCourseModuleCompletionsByCoursemoduleid'].length > 0 ? Icon(Icons.ac_unit) : Icon(Icons.access_alarm)
+              leading: getIcon(activity['type']),
+              trailing: activity['mdlCourseModuleCompletionsByCoursemoduleid'].length > 0 ? FaIcon(FontAwesomeIcons.checkSquare, color: Colors.green) : FaIcon(FontAwesomeIcons.square)
             )
           )
         )

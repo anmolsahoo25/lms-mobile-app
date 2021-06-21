@@ -111,58 +111,6 @@ class UsernameLoginState extends State<UsernameLogin> {
               },
               color: Colors.grey[200]
             ),
-
-            RaisedButton(
-              child: Text('Sign In'),
-              onPressed: () async {
-                var email = c1.value.text;
-                var password = c2.value.text;
-
-                setState(() => s = UsernameLoginStage.Loading);
-
-                try {
-                  var res = await FirebaseAuth.instance.signInWithEmailAndPassword(email: email, password: password);
-
-                  if(res.user == null) {
-                    await showDialog(
-                      context: context, 
-                      barrierDismissible: true,
-                      builder: (context) => AlertDialog(
-                        title: Text('Wrong password'),
-                        content: Text('Please re-enter your password or reset it'),
-                        actions: <Widget>[
-                          RaisedButton(child: Text('Go back'), onPressed: () {
-                            setState(() => s = UsernameLoginStage.Stage2op);
-                            Navigator.of(context).pop();
-                          })
-                        ]
-                      )
-                    );
-                  } else {
-                    // check is user exists in database
-                    await checkUserExists(context);
-                    await setUserClaims(context);
-                    Navigator.of(context).pushReplacementNamed("/");
-                  }
-                } catch(e) {
-                  c2.clear();
-                  await showDialog(
-                    context: context, 
-                    barrierDismissible: true,
-                    builder: (context) => AlertDialog(
-                      title: Text('Wrong password'),
-                      content: Text('Please re-enter your password or reset it'),
-                      actions: <Widget>[
-                          RaisedButton(child: Text('Go back'), onPressed: () {
-                            setState(() => s = UsernameLoginStage.Stage2op);
-                            Navigator.of(context).pop();
-                          })
-                        ]
-                    )
-                  );
-                }
-              }
-            )
           ]
         ),
         Center(
@@ -187,9 +135,7 @@ class UsernameLoginState extends State<UsernameLogin> {
           children: <Widget>[
             Flexible(flex: 1, child: Padding(padding: EdgeInsets.all(8), child: RaisedButton(
               child: Text('Sign Up with \n Email Link', textAlign: TextAlign.center),
-              onPressed: () async {
-                print('lol');
-              },
+              onPressed: null,
               color: Colors.grey[200]
             ))),
 
@@ -227,35 +173,6 @@ class UsernameLoginState extends State<UsernameLogin> {
             }
           )
         ),
-        RaisedButton(
-          child: Text('Sign Up'),
-          onPressed: () async {
-            setState(() => s = UsernameLoginStage.Loading);
-            var email = c1.value.text;
-            var password = c2.value.text;
-
-            try {
-              var res = await FirebaseAuth.instance.createUserWithEmailAndPassword(email: email, password: password);
-              await checkUserExists(context);
-              await setUserClaims(context);
-              Navigator.of(context).pushReplacementNamed("/");
-            } catch(e) {
-              print(e);
-              await showDialog(
-                context: context, 
-                barrierDismissible: false,
-                builder: (context) => AlertDialog(
-                  title: Text('Account creation failed'),
-                  content: Text('Please try again'),
-                  actions: <Widget>[
-                    RaisedButton(child: Text('Go back'), onPressed: () => Navigator.of(context).pop())
-                  ]
-                )
-              );
-              Navigator.of(context).pushReplacementNamed("/");
-            }
-          }
-        )
       ]
     );
   }
@@ -298,6 +215,23 @@ class UsernameLoginState extends State<UsernameLogin> {
       case(UsernameLoginStage.Stage1):
         ret = Padding(
           child: TextFormField(
+            textInputAction: TextInputAction.go,
+            keyboardType: TextInputType.emailAddress,
+            onFieldSubmitted: (inputString) async {
+              setState(() => s = UsernameLoginStage.Loading);
+              var email = c1.value.text;
+              var methods = await FirebaseAuth.instance.fetchSignInMethodsForEmail(email: email);
+              if (methods.length == 0) {
+                setState(() => s = UsernameLoginStage.Stage2n);
+              } else if (methods.length == 1) {
+              // signin exists
+              
+                // password
+                if (methods[0] == 'password') {
+                  setState(() => s = UsernameLoginStage.Stage2op);
+                }
+              }
+            },
             controller: c1,
             decoration: InputDecoration(hintText: 'Enter your email')
           ),
@@ -326,6 +260,56 @@ class UsernameLoginState extends State<UsernameLogin> {
             ),
             Padding(
               child: TextFormField(
+                textInputAction: TextInputAction.go,
+                keyboardType: TextInputType.text,
+                onFieldSubmitted: (inputString) async {
+                  var email = c1.value.text;
+                  var password = c2.value.text;
+
+                  setState(() => s = UsernameLoginStage.Loading);
+
+                  try {
+                    var res = await FirebaseAuth.instance.signInWithEmailAndPassword(email: email, password: password);
+
+                    if(res.user == null) {
+                      await showDialog(
+                        context: context, 
+                        barrierDismissible: true,
+                        builder: (context) => AlertDialog(
+                          title: Text('Wrong password'),
+                          content: Text('Please re-enter your password or reset it'),
+                          actions: <Widget>[
+                            RaisedButton(child: Text('Go back'), onPressed: () {
+                              setState(() => s = UsernameLoginStage.Stage2op);
+                              Navigator.of(context).pop();
+                            })
+                          ]
+                        )
+                      );
+                    } else {
+                      // check is user exists in database
+                      await checkUserExists(context);
+                      await setUserClaims(context);
+                      Navigator.of(context).pushReplacementNamed("/");
+                    }
+                  } catch(e) {
+                    c2.clear();
+                    await showDialog(
+                      context: context, 
+                      barrierDismissible: true,
+                      builder: (context) => AlertDialog(
+                        title: Text('Wrong password'),
+                        content: Text('Please re-enter your password or reset it'),
+                        actions: <Widget>[
+                            RaisedButton(child: Text('Go back'), onPressed: () {
+                              setState(() => s = UsernameLoginStage.Stage2op);
+                              Navigator.of(context).pop();
+                            })
+                          ]
+                      )
+                    );
+                  }
+                },
                 controller: c2, 
                 obscureText: true,
                 decoration: InputDecoration(hintText: 'Enter your password')
@@ -348,6 +332,34 @@ class UsernameLoginState extends State<UsernameLogin> {
               ),
               Padding(
                 child: TextFormField(
+                  keyboardType: TextInputType.text,
+                  textInputAction: TextInputAction.go,
+                  onFieldSubmitted: (inputString) async {
+                    setState(() => s = UsernameLoginStage.Loading);
+                    var email = c1.value.text;
+                    var password = c2.value.text;
+
+                    try {
+                      var res = await FirebaseAuth.instance.createUserWithEmailAndPassword(email: email, password: password);
+                      await checkUserExists(context);
+                      await setUserClaims(context);
+                      Navigator.of(context).pushReplacementNamed("/");
+                    } catch(e) {
+                      print(e);
+                      await showDialog(
+                        context: context, 
+                        barrierDismissible: false,
+                        builder: (context) => AlertDialog(
+                          title: Text('Account creation failed'),
+                          content: Text('Please try again'),
+                          actions: <Widget>[
+                            RaisedButton(child: Text('Go back'), onPressed: () => Navigator.of(context).pop())
+                          ]
+                        )
+                      );
+                      Navigator.of(context).pushReplacementNamed("/");
+                    }
+                  },
                   controller: c2, 
                   obscureText: true,
                   decoration: InputDecoration(hintText: 'Enter your password')
@@ -450,7 +462,7 @@ class PhoneLogin extends StatelessWidget {
                         } else {
                           var idToken = (await ((await FirebaseAuth.instance.currentUser()).getIdToken())).token;
                           var res = await http.post(
-                            'http://192.168.0.107:3000/setclaims',
+                            'https://lms.skill-live.com:3000/setclaims',
                             headers: {'Authorization' : 'Bearer ' + idToken }
                           );
                           print((await ((await FirebaseAuth.instance.currentUser()).getIdToken(refresh: true))).token);
@@ -568,7 +580,7 @@ checkUserExists(context) async {
 setUserClaims(context) async {
   var idToken = (await ((await FirebaseAuth.instance.currentUser()).getIdToken())).token;
   var res = await http.post(
-    'http://192.168.0.107:3000/setclaims',
+    'https://lms.skill-live.com:3000/setclaims',
     headers: {'Authorization' : 'Bearer ' + idToken}
   );
   print(res.body);

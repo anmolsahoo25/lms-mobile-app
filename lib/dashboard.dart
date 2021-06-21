@@ -55,8 +55,21 @@ class DashboardPageState extends State<DashboardPage> {
               print(result.exception);
               return SliverToBoxAdapter(child: Center(child: Text('Error...')));
             }
+
             final courses = result.data['mdlUserEnrolments'];
-            return SliverList(
+            return courses.length == 0 ? 
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: EdgeInsets.only(top: 8, left: 16, right: 16), 
+                  child: Card(
+                    child: Padding(
+                      padding: EdgeInsets.all(16),
+                      child: Center(child: Text('No courses enrolled yet!'))
+                    )
+                  )
+                )
+              ) : 
+              SliverList(
               delegate: SliverChildBuilderDelegate(
                 (BuildContext context, int index) {
                   if(index >= courses.length) {
@@ -72,7 +85,7 @@ class DashboardPageState extends State<DashboardPage> {
                         ),
                         child: 
                           Card(child: ListTile(
-                            leading: FlutterLogo(size: 32.0),
+                            leading: Container(height: 64, child: Image(image: AssetImage('assets/img/course-placeholder-cn.png'))),
                             title: Text(courses[index]['mdlEnrolByEnrolid']['mdlCourseByCourseid']['fullname']),
                             subtitle: Text(courses[index]['mdlEnrolByEnrolid']['mdlCourseByCourseid']['summary'].split('\n')[0])
                             )

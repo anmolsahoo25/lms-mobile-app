@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class AboutPage extends StatelessWidget {
-  _runMe() async {
-    print((await (await FirebaseAuth.instance.currentUser()).getIdToken()).token);
-  }
   build(context) {
-    _runMe();
     return SafeArea(child: Column(
       children: <Widget>[
         Flexible(flex: 1, child: ProfilePanel()),
@@ -33,8 +31,7 @@ class ProfilePanel extends StatelessWidget {
           child: Container(child: Column(
             mainAxisSize: MainAxisSize.min,
           children: <Widget>[
-            Icon(Icons.person, size: 128),
-            Text('My Account')
+            FaIcon(FontAwesomeIcons.user, size: 100),
           ]
         )))
       ]
@@ -47,11 +44,9 @@ class SettingsPanel extends StatelessWidget {
     return Column(
       children: <Widget>[
         Divider(),
-        Flexible(flex: 1, child: OptionCard()),
+        Flexible(flex: 1, child: ProfileCard()),
         Divider(),
-        Flexible(flex: 1, child: OptionCard()),
-        Divider(),
-        Flexible(flex: 1, child: OptionCard()),
+        Flexible(flex: 1, child: AboutCard()),
         Divider(),
         Flexible(flex: 1, child: SignoutCard()),
       ]
@@ -59,14 +54,27 @@ class SettingsPanel extends StatelessWidget {
   }
 }
 
-class OptionCard extends StatelessWidget {
+class ProfileCard extends StatelessWidget {
   build(contex) {
     return InkWell(
       onTap: () => print('lol'),
       child: Center(child: Padding(padding: EdgeInsets.only(left: 16, right: 16), child: Row(
       children: <Widget>[
-        Icon(Icons.ac_unit, size: 32),
-        Padding(padding: EdgeInsets.only(left: 32, right: 32), child: Center(child: Text('Option 1')))
+        FaIcon(FontAwesomeIcons.cog, size: 32),
+        Padding(padding: EdgeInsets.only(left: 32, right: 32), child: Center(child: Text('My Profile')))
+      ],
+    ))));
+  }
+}
+
+class AboutCard extends StatelessWidget {
+  build(contex) {
+    return InkWell(
+      onTap: () => print('lol'),
+      child: Center(child: Padding(padding: EdgeInsets.only(left: 16, right: 16), child: Row(
+      children: <Widget>[
+        FaIcon(FontAwesomeIcons.infoCircle, size: 32),
+        Padding(padding: EdgeInsets.only(left: 32, right: 32), child: Center(child: Text('About App')))
       ],
     ))));
   }
@@ -76,6 +84,8 @@ class SignoutCard extends StatelessWidget {
   build(context) {
     return InkWell(
       onTap: () async {
+        var prefs = await SharedPreferences.getInstance();
+        await prefs.clear();
         await FirebaseAuth.instance.signOut();
         Navigator.of(context, rootNavigator: true).pushNamedAndRemoveUntil("/", (route) => false);
       },
@@ -84,7 +94,7 @@ class SignoutCard extends StatelessWidget {
           padding: EdgeInsets.only(left: 16, right: 16),
           child: Row(
             children: <Widget>[
-              Icon(Icons.ac_unit, size: 32),
+              FaIcon(FontAwesomeIcons.signOutAlt, size: 32),
               Padding(padding: EdgeInsets.only(left: 32, right: 32), child: Center(child: Text('Sign Out')))
             ],
           )

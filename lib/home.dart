@@ -156,9 +156,16 @@ class LatestCoursePanelState extends State<LatestCoursePanel> {
 
   _loadLatestCourse() async {
     var prefs = await SharedPreferences.getInstance();
-    var course = json.decode(prefs.getString('lastAccessed'));
-    if(course['id'] == null || course['fullname'] == null || course['language'] == null || course['summary'] == null) {
+    var courseJson = prefs.getString('lastAccessed');
 
+    if(courseJson == null) {
+      return;
+    }
+
+    var course = json.decode(prefs.getString('lastAccessed'));
+
+    if(course['id'] == null || course['fullname'] == null || course['language'] == null || course['summary'] == null) {
+      return;
     } else {
       setState(() => lastAccessed = course);
     }

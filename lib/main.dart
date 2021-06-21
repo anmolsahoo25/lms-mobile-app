@@ -8,7 +8,7 @@ void main() => runApp(GraphQLApp());
 
 class GraphQLApp extends StatelessWidget {
   static final HttpLink httpLink = HttpLink(
-    uri: 'http://192.168.0.107:3000/graphql'
+    uri: 'https://lms.skill-live.com:3000/graphql'
   );
 
   static final AuthLink authLink = AuthLink(
